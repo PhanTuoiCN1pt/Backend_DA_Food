@@ -7,6 +7,8 @@ require("dotenv").config();
 const foodRoutes = require("./routes/foodRoutes.js");
 const authRoutes = require("./routes/authRoutes.js");
 const userRoutes = require("./routes/userRoutes.js");
+const recipesRoutes = require("./routes/recipesRoutes.js");
+const mealSuggestionRoutes = require("./routes/mealSuggestionRoutes.js");
 
 const app = express();
 app.use(bodyParser.json());
@@ -30,6 +32,8 @@ mongoose
 app.use("/api/foods", foodRoutes);
 app.use("/api/auths", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/recipes", recipesRoutes);
+app.use("/api/meals", mealSuggestionRoutes);
 
 // Chạy server
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
