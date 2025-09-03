@@ -20,7 +20,9 @@ const recipeSchema = new mongoose.Schema({
   category: { 
     type: String 
   }, // ví dụ: Thịt, Rau, Tráng miệng...
-  
+
+  location: { type: String, default: null }, // 👈 thêm field location
+
   createdAt: { 
     type: Date, 
     default: Date.now 
