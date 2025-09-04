@@ -1,21 +1,41 @@
+// routes/recipeRoutes.js
 const express = require("express");
 const router = express.Router();
 const recipeController = require("../controllers/recipeController");
 
-// @desc Lấy toàn bộ công thức
+// -------------------- GỢI Ý MÓN ĂN --------------------
+// GET /api/recipes/suggestions/:userId
+router.get("/suggestions/:userId", recipeController.getTodayMealSuggestions);
+
+// -------------------- CATEGORY & ALL --------------------
+// GET /api/recipes/category/:category
+router.get("/category/:category", recipeController.getRecipesByCategory);
+
+// GET /api/recipes/all
+router.get("/all", recipeController.getAllRecipes);
+
+// GET /api/recipes/categories
+router.get("/categories", recipeController.getAllCategories);
+
+// -------------------- CRUD --------------------
+// GET /api/recipes/
 router.get("/", recipeController.getRecipes);
 
-// @desc Tạo công thức mới 
+// POST /api/recipes/
 router.post("/", recipeController.createRecipe);
 
-// Nhà bếp của user
+// -------------------- NHÀ BẾP --------------------
+// PUT /api/recipes/kitchen/:id  (thêm công thức vào kitchen)
 router.put("/kitchen/:id", recipeController.addToKitchen);
+
+// GET /api/recipes/kitchen?userId=xxx
 router.get("/kitchen", recipeController.getKitchenRecipes);
 
-// Xóa recipe khỏi Nhà bếp của user (theo id trong RecipeUser)
+// DELETE /api/recipes/kitchen/delete/:id
 router.delete("/kitchen/delete/:id", recipeController.removeFromKitchen);
 
-// lấy recipes theo location 
+// -------------------- LOCATION --------------------
+// GET /api/recipes/location/:location
 router.get("/location/:location", recipeController.getRecipesByLocation);
 
 module.exports = router;

@@ -7,8 +7,7 @@ require("dotenv").config();
 const foodRoutes = require("./routes/foodRoutes.js");
 const authRoutes = require("./routes/authRoutes.js");
 const userRoutes = require("./routes/userRoutes.js");
-const recipesRoutes = require("./routes/recipesRoutes.js");
-const mealSuggestionRoutes = require("./routes/mealSuggestionRoutes.js");
+const recipeRoutes = require("./routes/recipesRoutes.js"); // ✅ gộp rồi, chỉ còn 1
 
 const app = express();
 app.use(bodyParser.json());
@@ -25,16 +24,14 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.log("❌ MongoDB error:", err));
 
-// Routes
+// -------------------- Routes --------------------
 app.use("/api/foods", foodRoutes);
 app.use("/api/auths", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/recipes", recipesRoutes);
-app.use("/api/meals", mealSuggestionRoutes);
+app.use("/api/recipes", recipeRoutes); // ✅ recipes + meals đều chung ở đây
 
-
-// Chạy server
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// -------------------- Run Server --------------------
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
