@@ -9,7 +9,7 @@ const recipeSchema = new mongoose.Schema({
   ingredients: [
     {
       name: { type: String, required: true },     // tên nguyên liệu
-      quantity: { type: String, required: true }, // số lượng, ví dụ: "200g"
+      quantity: { type: String, required: true }, // số lượng
     },
   ],
   
@@ -17,11 +17,15 @@ const recipeSchema = new mongoose.Schema({
     { type: String, required: true } // từng bước hướng dẫn nấu ăn
   ],
 
-  category: { 
-    type: String 
-  }, // ví dụ: Thịt, Rau, Tráng miệng...
+  category: { type: String }, // ví dụ: Thịt, Rau, Tráng miệng...
 
-  location: { type: String, default: null }, // 👈 thêm field location
+  location: { type: String, default: null }, // vị trí (ví dụ: Nhà bếp)
+
+  userId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "User", 
+    required: false 
+  }, // gắn với người dùng nào
 
   createdAt: { 
     type: Date, 
