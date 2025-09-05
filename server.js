@@ -7,7 +7,8 @@ require("dotenv").config();
 const foodRoutes = require("./routes/foodRoutes.js");
 const authRoutes = require("./routes/authRoutes.js");
 const userRoutes = require("./routes/userRoutes.js");
-const recipeRoutes = require("./routes/recipesRoutes.js"); // ✅ gộp rồi, chỉ còn 1
+const recipeRoutes = require("./routes/recipesRoutes.js"); 
+const cartRoutes = require("./routes/cartRoutes.js");
 
 const app = express();
 app.use(bodyParser.json());
@@ -31,7 +32,8 @@ mongoose
 app.use("/api/foods", foodRoutes);
 app.use("/api/auths", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/recipes", recipeRoutes); // ✅ recipes + meals đều chung ở đây
+app.use("/api/recipes", recipeRoutes); 
+app.use("/api/cart", cartRoutes);
 
 // -------------------- Run Server --------------------
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
