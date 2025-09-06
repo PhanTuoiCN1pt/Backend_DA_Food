@@ -4,28 +4,28 @@ const recipeSchema = new mongoose.Schema({
   name: { 
     type: String, 
     required: true 
-  }, // Tên món ăn
+  }, 
   
   ingredients: [
     {
-      name: { type: String, required: true },     // tên nguyên liệu
-      quantity: { type: String, required: true }, // số lượng
+      name: { type: String, required: true },     
+      quantity: { type: String, required: true }, 
     },
   ],
   
   instructions: [
-    { type: String, required: true } // từng bước hướng dẫn nấu ăn
+    { type: String, required: true } 
   ],
 
-  category: { type: String }, // ví dụ: Thịt, Rau, Tráng miệng...
+  category: { type: String }, 
 
-  location: { type: String, default: null }, // vị trí (ví dụ: Nhà bếp)
+  location: { type: String, default: null }, 
 
   userId: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: "User", 
     required: false 
-  }, // gắn với người dùng nào
+  }, 
 
   createdAt: { 
     type: Date, 

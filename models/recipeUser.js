@@ -10,7 +10,7 @@ const recipeUserSchema = new mongoose.Schema({
   ],
   instructions: [{ type: String, required: true }],
   category: { type: String },
-  location: { type: String, default: "Nhà bếp" }, // mặc định là Nhà bếp
+  location: { type: String, default: "Nhà bếp" }, 
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   createdAt: { type: Date, default: Date.now },
 });

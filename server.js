@@ -25,8 +25,8 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.log("❌ MongoDB error:", err));
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.log("MongoDB error:", err));
 
 // -------------------- Routes --------------------
 app.use("/api/foods", foodRoutes);
@@ -36,4 +36,4 @@ app.use("/api/recipes", recipeRoutes);
 app.use("/api/cart", cartRoutes);
 
 // -------------------- Run Server --------------------
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

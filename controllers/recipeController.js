@@ -154,15 +154,15 @@ exports.removeFromKitchen = async (req, res) => {
 
     const deleted = await RecipeUser.findByIdAndDelete(id);
     if (!deleted) {
-      return res.status(404).json({ message: "❌ Không tìm thấy recipe trong Nhà bếp" });
+      return res.status(404).json({ message: "Không tìm thấy recipe trong Nhà bếp" });
     }
 
     res.json({
-      message: "✅ Xóa recipe khỏi Nhà bếp thành công",
+      message: "Xóa recipe khỏi Nhà bếp thành công",
       recipe: deleted,
     });
   } catch (err) {
-    console.error("❌ Lỗi xóa recipe khỏi kitchen:", err);
+    console.error("Lỗi xóa recipe khỏi kitchen:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
