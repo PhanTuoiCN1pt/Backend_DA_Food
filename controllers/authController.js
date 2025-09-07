@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
-const JWT_SECRET = process.env.JWT_SECRET; // nên lưu trong biến môi trường .env
+const JWT_SECRET = process.env.JWT_SECRET; 
 
 // Đăng ký
 exports.register = async (req, res) => {
@@ -76,7 +76,7 @@ exports.logout = async (req, res) => {
 exports.changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
-    const userId = req.user.userId; // lấy từ token
+    const userId = req.user.userId;
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ error: "User không tồn tại" });

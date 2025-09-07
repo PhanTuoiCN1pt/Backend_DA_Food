@@ -11,12 +11,12 @@ router.post("/notify-expired-food/:userId", async (req, res) => {
     const user = await User.findById(userId);
     const foods = await Food.find({ userId });
 
-    // lọc món ăn sắp hết hạn (vd: còn 2 ngày)
+    // Lọc món ăn sắp hết hạn (trong 2 ngày)
     const soonExpired = foods.filter(food => {
       const now = new Date();
       const expire = new Date(food.expiryDate);
       const diff = (expire - now) / (1000 * 60 * 60 * 24);
-      return diff <= 2; // <= 2 ngày
+      return diff <= 2; 
     });
 
     if (soonExpired.length === 0) {
@@ -25,10 +25,10 @@ router.post("/notify-expired-food/:userId", async (req, res) => {
 
     const message = {
       notification: {
-        title: "⚠️ Thực phẩm sắp hết hạn",
+        title: "Thực phẩm sắp hết hạn",
         body: `Có ${soonExpired.length} món ăn sắp hết hạn, kiểm tra ngay!`,
       },
-      token: user.fcmToken, // fcmToken lưu từ app
+      token: user.fcmToken, 
     };
 
     await admin.messaging().send(message);

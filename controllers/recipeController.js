@@ -9,14 +9,11 @@ exports.getTodayMealSuggestions = async (req, res) => {
   try {
     const userId = req.params.userId;
 
-    // 1. Lấy toàn bộ thực phẩm của user
     const userFoods = await Food.find({ userId });
     const foodNames = userFoods.map(f => f.name.toLowerCase());
 
-    // 2. Lấy tất cả công thức
     const recipes = await Recipe.find();
 
-    // 3. Lọc các món có ít nhất 4 nguyên liệu user có
     const suggestions = recipes.filter(recipe => {
       const recipeIngredients = recipe.ingredients.map(i => i.name.toLowerCase());
       const matchedCount = recipeIngredients.filter(i => foodNames.includes(i)).length;
@@ -25,7 +22,7 @@ exports.getTodayMealSuggestions = async (req, res) => {
 
     res.json({ suggestions });
   } catch (err) {
-    console.error("❌ Lỗi getTodayMealSuggestions:", err);
+    console.error("Lỗi getTodayMealSuggestions:", err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -101,21 +98,34 @@ exports.createRecipe = async (req, res) => {
 };
 
 // -------------------- NHÀ BẾP (RECIPE USER) --------------------
-// Thêm recipe vào nhà bếp
+// Thêm recipe vào nhà bếp 
 exports.addToKitchen = async (req, res) => {
   try {
-    const { id } = req.params; // id của recipe gốc
+    const { id } = req.params; 
     const { userId } = req.body;
 
     if (!userId) {
       return res.status(400).json({ message: "Thiếu userId" });
     }
 
+    // Lấy recipe gốc
     const recipe = await Recipe.findById(id);
     if (!recipe) {
       return res.status(404).json({ message: "Không tìm thấy công thức" });
     }
 
+    // Kiểm tra trùng tên món trong nhà bếp của user
+    const existing = await RecipeUser.findOne({
+      name: recipe.name,
+      userId,
+      location: "Nhà bếp",
+    });
+
+    if (existing) {
+      return res.status(400).json({ message: "Món đã có trong nhà bếp" });
+    }
+
+    // Thêm recipe mới
     const newRecipe = new RecipeUser({
       name: recipe.name,
       ingredients: recipe.ingredients,
@@ -131,6 +141,8 @@ exports.addToKitchen = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
 
 // Lấy danh sách công thức trong nhà bếp của user
 exports.getKitchenRecipes = async (req, res) => {
@@ -150,7 +162,7 @@ exports.getKitchenRecipes = async (req, res) => {
 // Xóa recipe khỏi Nhà bếp
 exports.removeFromKitchen = async (req, res) => {
   try {
-    const { id } = req.params; // _id của recipe trong RecipeUser
+    const { id } = req.params; 
 
     const deleted = await RecipeUser.findByIdAndDelete(id);
     if (!deleted) {

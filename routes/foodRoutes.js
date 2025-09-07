@@ -5,7 +5,7 @@ const foodController = require("../controllers/foodController");
 // Thêm food mới
 router.post("/", foodController.addFood);
 
-// Lấy tất cả foods của 1 user (Flutter gửi userId)
+// Lấy tất cả foods của user
 router.get("/", foodController.getFoodsByUser);
 
 // Cập nhật food theo id

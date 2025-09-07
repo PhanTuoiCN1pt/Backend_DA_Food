@@ -1,7 +1,7 @@
 const User = require("../models/userModel");
 
-// @desc Lấy giỏ hàng
-// @route GET /api/cart/:userId
+// Lấy giỏ hàng
+
 exports.getCart = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -14,9 +14,8 @@ exports.getCart = async (req, res) => {
   }
 };
 
-// @desc Thêm food vào giỏ hàng (chỉ lưu tên)
-// @route POST /api/cart/:userId/add
-// body: { foodName: "Bít tết" }
+// Thêm food vào giỏ hàng 
+
 exports.addToCart = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -32,7 +31,7 @@ exports.addToCart = async (req, res) => {
     // Không thêm trùng
     const exists = user.cart.find(item => item.foodName === foodName);
     if (!exists) {
-      user.cart.push({ foodName });  // <-- đảm bảo đúng key
+      user.cart.push({ foodName });  
       await user.save();
     }
 
@@ -42,25 +41,32 @@ exports.addToCart = async (req, res) => {
   }
 };
 
-// @desc Xóa food khỏi giỏ
-// @route DELETE /api/cart/:userId/remove/:name
-exports.removeFromCart = async (req, res) => {
+// Xóa 1 món ăn khỏi giỏ
+exports.deleteMultiple = async (req, res) => {
   try {
-    const { userId, name } = req.params;
+    const { userId } = req.params;
+    const { itemIds } = req.body; 
+
+    if (!itemIds || !Array.isArray(itemIds)) {
+      return res.status(400).json({ message: "itemIds phải là mảng" });
+    }
+
     const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "Không tìm thấy user" });
 
-    user.cart = user.cart.filter(item => item.name !== name);
+    user.cart = user.cart.filter(
+      (item) => !itemIds.includes(item._id.toString())
+    );
+
     await user.save();
-
     res.json(user.cart);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// @desc Xóa toàn bộ giỏ hàng
-// @route DELETE /api/cart/:userId/clear
+
+// Xóa toàn bộ giỏ hàng
 exports.clearCart = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -76,7 +82,7 @@ exports.clearCart = async (req, res) => {
   }
 };
 
-// PUT /api/users/:userId/cart/:itemId/toggle
+// Cập nhật trạng thái đã mua/chưa mua của món ăn trong giỏ
 exports.toggleCartItem = async (req, res) => {
   const { userId, itemId } = req.params;
 

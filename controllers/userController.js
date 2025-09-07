@@ -14,7 +14,7 @@ exports.getAllUsers = async (req, res) => {
 exports.getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng" });
     res.json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -27,10 +27,10 @@ exports.updateUser = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true } // trả về dữ liệu mới
+      { new: true } 
     );
     if (!updatedUser)
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
     res.json(updatedUser);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -42,8 +42,8 @@ exports.deleteUser = async (req, res) => {
   try {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
     if (!deletedUser)
-      return res.status(404).json({ message: "User not found" });
-    res.json({ message: "User deleted successfully" });
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    res.json({ message: "Đã xóa người dùng" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
