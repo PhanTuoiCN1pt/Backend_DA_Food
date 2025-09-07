@@ -3,7 +3,9 @@ const mongoose = require("mongoose");
 
 const cartItemSchema = new mongoose.Schema({
   foodName: { type: String, required: true },
+  done: { type: Boolean, default: false }, 
 });
+
 
 const userSchema = new mongoose.Schema(
   {

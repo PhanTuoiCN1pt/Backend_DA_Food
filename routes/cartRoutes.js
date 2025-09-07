@@ -15,4 +15,6 @@ router.delete("/:userId/remove/:foodName", cartController.removeFromCart);
 // Xóa toàn bộ giỏ hàng
 router.delete("/:userId/clear", cartController.clearCart);
 
+router.put("/:userId/update/:itemId", cartController.toggleCartItem);
+
 module.exports = router;
