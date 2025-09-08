@@ -62,3 +62,28 @@ exports.deleteFood = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
+//  Tìm kiếm food theo tên 
+exports.searchFood = async (req, res) => {
+  try {
+    const { userId, keyword } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ message: "userId query parameter is required" });
+    }
+
+    const query = { userId };
+
+    if (keyword && keyword.trim() !== "") {
+      query.name = { $regex: keyword, $options: "i" }; 
+      // Regex match gần đúng, không phân biệt hoa/thường
+    }
+
+    const foods = await Food.find(query).sort({ registerDate: -1 });
+    res.json(foods);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+

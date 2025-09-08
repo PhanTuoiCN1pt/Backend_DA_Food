@@ -11,6 +11,9 @@ router.get("/", foodController.getFoodsByUser);
 // Cập nhật food theo id
 router.put("/:id", foodController.updateFood);
 
+// Tìm kiếm food theo tên
+router.get("/search", foodController.searchFood);
+
 // Xóa food theo id
 router.delete("/:id", foodController.deleteFood);
 
