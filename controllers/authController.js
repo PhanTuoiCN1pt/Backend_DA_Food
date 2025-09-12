@@ -7,9 +7,10 @@ const nodemailer = require("nodemailer");
 const JWT_SECRET = process.env.JWT_SECRET; 
 
 // Đăng ký
+// Đăng ký
 exports.register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, fcmToken } = req.body; // ✅ nhận thêm fcmToken từ client
 
     // Check trùng email
     const existingUser = await User.findOne({ email });
@@ -25,6 +26,7 @@ exports.register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      fcmToken: fcmToken || null, // ✅ lưu token device
     });
 
     await newUser.save();
@@ -36,6 +38,7 @@ exports.register = async (req, res) => {
         id: newUser._id,
         name: newUser.name,
         email: newUser.email,
+        fcmToken: newUser.fcmToken, // ✅ trả về luôn cho chắc
       },
     });
   } catch (err) {
@@ -44,10 +47,11 @@ exports.register = async (req, res) => {
   }
 };
 
+
 // Đăng nhập
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, fcmToken } = req.body; // ✅ nhận thêm fcmToken từ client
 
     const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ message: "Sai email hoặc mật khẩu" });
@@ -56,14 +60,29 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: "Sai email hoặc mật khẩu" });
 
-    // Tạo token
+    // Nếu có fcmToken mới thì update
+    if (fcmToken && user.fcmToken !== fcmToken) {
+      user.fcmToken = fcmToken;
+      await user.save();
+    }
+
+    // Tạo token JWT
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "1h" });
 
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
+    res.json({ 
+      token, 
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email,
+        fcmToken: user.fcmToken 
+      } 
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Đăng xuất (client chỉ cần xóa token phía frontend)
 // Nếu muốn "logout server-side" thì ta có thể lưu token blacklist
