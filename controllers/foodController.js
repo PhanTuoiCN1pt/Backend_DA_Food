@@ -14,7 +14,7 @@ exports.addFood = async (req, res) => {
 // Lấy tất cả foods của 1 user
 exports.getFoodsByUser = async (req, res) => {
   try {
-    const { userId } = req.query; // Flutter gửi ?userId=...
+    const { userId } = req.query; 
 
     if (!userId) {
       return res.status(400).json({ message: "userId query parameter is required" });
