@@ -7,7 +7,6 @@ const nodemailer = require("nodemailer");
 const JWT_SECRET = process.env.JWT_SECRET; 
 
 // Đăng ký
-// Đăng ký
 exports.register = async (req, res) => {
   try {
     const { name, email, password, fcmToken } = req.body; // ✅ nhận thêm fcmToken từ client
@@ -66,8 +65,13 @@ exports.login = async (req, res) => {
       await user.save();
     }
 
+    // Cập nhật lastLogin
+     user.lastLogin = new Date();
+
+     await user.save();
+
     // Tạo token JWT
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET);
 
     res.json({ 
       token, 
@@ -75,7 +79,8 @@ exports.login = async (req, res) => {
         id: user._id, 
         name: user.name, 
         email: user.email,
-        fcmToken: user.fcmToken 
+        fcmToken: user.fcmToken,
+        lastLogin: user.lastLogin
       } 
     });
   } catch (err) {

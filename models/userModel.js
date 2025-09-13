@@ -14,10 +14,12 @@ const userSchema = new mongoose.Schema(
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     fcmToken: { type: String, default: null },
+    lastLogin: { type: Date, default: null },
     cart: {
       type: [cartItemSchema],
       default: [],
     },
+
   },
   { timestamps: true }
 );

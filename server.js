@@ -7,7 +7,7 @@ const notifyController = require("./controllers/notificationController");
 
 // Chạy lúc 10h sáng và 5h chiều mỗi ngày
 
-cron.schedule("4 10,17 * * *", async () => {
+cron.schedule("7 17,23 * * *", async () => {
   console.log("⏰ Cron job: auto notify expiring foods");
   try {
     await notifyController.autoNotifyExpiringFoods(
