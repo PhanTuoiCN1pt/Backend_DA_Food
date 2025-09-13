@@ -69,23 +69,41 @@ exports.autoNotifyExpiringFoods = async (req, res) => {
                 continue;
             }
 
-            const foodsListStr = userFoodsMap[userId]
-                .map(f => `${f.name} sẽ hết hạn sau ${f.diffDays} ngày`)
-                .join("\n"); // nối thành 1 string, mỗi food trên 1 dòng
+            // Tách foods thành 2 nhóm
+            const expiringFoods = userFoodsMap[userId]
+                .filter(f => f.diffDays > 0)
+                .map(f => f.name);
+
+            const expiredFoods = userFoodsMap[userId]
+                .filter(f => f.diffDays <= 0)
+                .map(f => f.name);
+
+            // Ghép chuỗi, dùng dấu phẩy
+            let foodsListStr = "";
+            if (expiringFoods.length > 0) {
+                foodsListStr += `Thực phẩm sắp hết hạn: ${expiringFoods.join(", ")}`;
+            }
+            if (expiredFoods.length > 0) {
+                if (foodsListStr) foodsListStr += "\n"; // xuống dòng giữa 2 nhóm
+                foodsListStr += `Thực phẩm quá hạn: ${expiredFoods.join(", ")}`;
+            }
+
+            if (!foodsListStr) continue; // không có gì thì bỏ qua
 
             const message = {
                 token: user.fcmToken,
                 notification: {
-                    title: "⚠️ Thực phẩm sắp hết hạn",
-                    body: foodsListStr, // ✅ string
+                    title: "⚠️ Cảnh báo thực phẩm",
+                    body: foodsListStr,
                 },
             };
-
 
             await admin.messaging().send(message);
             console.log(`✅ Sent 1 notification to user ${user._id}`);
             totalNotifies++;
         }
+
+
 
         res.json({ success: true, message: `Đã gửi ${totalNotifies} thông báo gộp` });
     } catch (err) {
