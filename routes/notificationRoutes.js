@@ -8,4 +8,7 @@ router.post("/send", notifyController.sendNotification);
 // Gửi notification food sắp hết hạn
 router.post("/auto", notifyController.autoNotifyExpiringFoods);
 
+// Lấy lịch notify của user
+router.post("/set-time", notifyController.setNotifyTime);
+
 module.exports = router;

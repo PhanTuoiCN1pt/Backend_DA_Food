@@ -4,21 +4,43 @@ const cron = require("node-cron");
 require("dotenv").config();
 
 const notifyController = require("./controllers/notificationController");
+const moment = require("moment");
+const User = require("./models/userModel");
 
 // Chạy lúc 10h sáng và 5h chiều mỗi ngày
 
-cron.schedule("7 17,23 * * *", async () => {
-  console.log("⏰ Cron job: auto notify expiring foods");
+// cron.schedule("22 17,18 * * *", async () => {
+//   console.log("⏰ Cron job: auto notify expiring foods");
+//   try {
+//     await notifyController.autoNotifyExpiringFoods(
+//       { body: {} }, // fake req
+//       { 
+//         json: (data) => console.log("✅ Auto notify result:", data),
+//         status: (code) => ({ json: (data) => console.log(`❌ Error ${code}:`, data) })
+//       }
+//     );
+//   } catch (err) {
+//     console.error("❌ Cron job error:", err.message);
+//   }
+// });
+
+// Cron job chạy mỗi phút
+cron.schedule("* * * * *", async () => {
+  const now = moment().format("HH:mm");
+  console.log("⏰ Check notify job at", now);
+
   try {
-    await notifyController.autoNotifyExpiringFoods(
-      { body: {} }, // fake req
-      { 
-        json: (data) => console.log("✅ Auto notify result:", data),
-        status: (code) => ({ json: (data) => console.log(`❌ Error ${code}:`, data) })
+    const users = await User.find({ notifyTime: now });
+
+    for (const user of users) {
+      if (user.fcmToken) {
+        await notifyController.sendAutoNotifyForUser(user);
+      } else {
+        console.log(`⚠️ User ${user._id} không có fcmToken`);
       }
-    );
+    }
   } catch (err) {
-    console.error("❌ Cron job error:", err.message);
+    console.error("[NODE-CRON] [ERROR]", err);
   }
 });
 
@@ -34,6 +56,7 @@ const notificationRoutes = require("./routes/notificationRoutes.js");
 const app = express();
 const bodyParser = require("body-parser");
 const fcmRoutes = require("./routes/fcmRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
 
 app.use(cors());
 app.use(express.json());
@@ -50,6 +73,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/recipes", recipeRoutes); 
 app.use("/api/cart", cartRoutes);
 app.use("/api/notify", notificationRoutes);
+app.use("/api/categories", categoryRoutes);
+
 
 // FCM routes
 app.use("/api/fcm", fcmRoutes);

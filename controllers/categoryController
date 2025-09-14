@@ -1,0 +1,23 @@
+const Category = require("../models/categoryModel");
+
+// Lấy tất cả category
+exports.getCategories = async (req, res) => {
+  try {
+    const categories = await Category.find({});
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error });
+  }
+};
+
+// Lấy 1 category kèm subCategories
+exports.getCategoryById = async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
+    if (!category) return res.status(404).json({ message: "Không tìm thấy category" });
+    res.json(category);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error });
+  }
+};
+

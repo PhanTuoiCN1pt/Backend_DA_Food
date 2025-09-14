@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema(
     resetPasswordExpires: Date,
     fcmToken: { type: String, default: null },
     lastLogin: { type: Date, default: null },
+    notifyTime: { type: String, default: "08:00" },
     cart: {
       type: [cartItemSchema],
       default: [],

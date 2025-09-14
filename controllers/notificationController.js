@@ -32,85 +32,6 @@ exports.sendNotification = async (req, res) => {
     }
 };
 
-/**
- * Quét database → tìm food sắp hết hạn → gửi notification cho user
- */
-// exports.autoNotifyExpiringFoods = async (req, res) => {
-//     try {
-//         console.log("🔔 autoNotifyExpiringFoods START");
-
-//         const foods = await Food.find({});
-//         console.log(`📦 Found ${foods.length} foods`);
-
-//         const now = new Date();
-
-//         // Tạo 1 object lưu danh sách food sắp hết hạn theo user
-//         const userFoodsMap = {};
-
-//         for (const food of foods) {
-//             if (!food.expiryDate) continue;
-
-//             const expiry = new Date(food.expiryDate);
-//             const diffDays = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
-
-//             if (diffDays <= 2) {
-//                 if (!userFoodsMap[food.userId]) userFoodsMap[food.userId] = [];
-//                 userFoodsMap[food.userId].push({ name: food.name, diffDays });
-//             }
-//         }
-
-//         let totalNotifies = 0;
-
-//         // Gửi 1 thông báo cho mỗi user, liệt kê tất cả food
-//         for (const userId of Object.keys(userFoodsMap)) {
-//             const user = await User.findById(userId);
-//             if (!user?.fcmToken) {
-//                 console.log(`⚠️ User ${userId} has no fcmToken`);
-//                 continue;
-//             }
-
-//             // Tách foods thành 2 nhóm
-//             const expiringFoods = userFoodsMap[userId]
-//                 .filter(f => f.diffDays > 0)
-//                 .map(f => f.name);
-
-//             const expiredFoods = userFoodsMap[userId]
-//                 .filter(f => f.diffDays <= 0)
-//                 .map(f => f.name);
-
-//             // Ghép chuỗi, dùng dấu phẩy
-//             let foodsListStr = "";
-//             if (expiringFoods.length > 0) {
-//                 foodsListStr += `Thực phẩm sắp hết hạn: ${expiringFoods.join(", ")}`;
-//             }
-//             if (expiredFoods.length > 0) {
-//                 if (foodsListStr) foodsListStr += "\n"; // xuống dòng giữa 2 nhóm
-//                 foodsListStr += `Thực phẩm quá hạn: ${expiredFoods.join(", ")}`;
-//             }
-
-//             if (!foodsListStr) continue; // không có gì thì bỏ qua
-
-//             const message = {
-//                 token: user.fcmToken,
-//                 notification: {
-//                     title: "⚠️ Cảnh báo thực phẩm",
-//                     body: foodsListStr,
-//                 },
-//             };
-
-//             await admin.messaging().send(message);
-//             console.log(`✅ Sent 1 notification to user ${user._id}`);
-//             totalNotifies++;
-//         }
-
-
-
-//         res.json({ success: true, message: `Đã gửi ${totalNotifies} thông báo gộp` });
-//     } catch (err) {
-//         console.error("❌ autoNotifyExpiringFoods ERROR:", err.message);
-//         res.status(500).json({ error: err.message });
-//     }
-// };
 
 exports.autoNotifyExpiringFoods = async (req, res) => {
   try {
@@ -193,4 +114,72 @@ exports.autoNotifyExpiringFoods = async (req, res) => {
     console.error("❌ autoNotifyExpiringFoods ERROR:", err.message);
     res.status(500).json({ error: err.message });
   }
+};
+
+// POST /api/notification/set-time
+exports.setNotifyTime = async (req, res) => {
+  try {
+    const { userId, notifyTime } = req.body;
+
+    if (!notifyTime || !/^\d{2}:\d{2}$/.test(notifyTime)) {
+      return res.status(400).json({ error: "Giờ không hợp lệ (HH:mm)" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { notifyTime },
+      { new: true }
+    );
+
+    if (!user) return res.status(404).json({ error: "User không tồn tại" });
+
+    res.json({ success: true, notifyTime: user.notifyTime });
+  } catch (err) {
+    console.error("❌ setNotifyTime ERROR:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.sendAutoNotifyForUser = async (user) => {
+  const foods = await Food.find({ userId: user._id });
+
+  const now = new Date();
+  const foodsForUser = [];
+
+  for (const food of foods) {
+    if (!food.expiryDate) continue;
+    const expiry = new Date(food.expiryDate);
+    const diffDays = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
+
+    if (diffDays <= 2) {
+      foodsForUser.push({ name: food.name, diffDays });
+    }
+  }
+
+  if (!foodsForUser.length) return;
+
+  const expiringFoods = foodsForUser.filter(f => f.diffDays > 0).map(f => f.name);
+  const expiredFoods = foodsForUser.filter(f => f.diffDays <= 0).map(f => f.name);
+
+  let foodsListStr = "";
+  if (expiringFoods.length > 0) {
+    foodsListStr += `Thực phẩm sắp hết hạn: ${expiringFoods.join(", ")}`;
+  }
+  if (expiredFoods.length > 0) {
+    if (foodsListStr) foodsListStr += "\n";
+    foodsListStr += `Thực phẩm quá hạn: ${expiredFoods.join(", ")}`;
+  }
+
+  if (!foodsListStr) return;
+
+  const message = {
+    token: user.fcmToken,
+    notification: {
+      title: "⚠️ Cảnh báo thực phẩm",
+      body: foodsListStr,
+    },
+  };
+
+  await admin.messaging().send(message);
+  console.log(`✅ Sent notify to user ${user._id} at ${user.notifyTime}`);
 };
