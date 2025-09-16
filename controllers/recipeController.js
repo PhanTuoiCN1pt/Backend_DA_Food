@@ -37,15 +37,6 @@ exports.getRecipes = async (req, res) => {
   }
 };
 
-exports.getAllRecipes = async (req, res) => {
-  try {
-    const recipes = await Recipe.find();
-    res.json({ recipes });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
 exports.getRecipesByCategory = async (req, res) => {
   try {
     const category = req.params.category;
@@ -76,24 +67,6 @@ exports.getRecipesByLocation = async (req, res) => {
     res.json(recipes);
   } catch (err) {
     res.status(500).json({ message: err.message });
-  }
-};
-
-// -------------------- CRUD CÔNG THỨC --------------------
-exports.createRecipe = async (req, res) => {
-  try {
-    const { name, ingredients, instructions, category } = req.body;
-
-    if (!name || !ingredients || !instructions) {
-      return res.status(400).json({ message: "Thiếu thông tin công thức" });
-    }
-
-    const newRecipe = new Recipe({ name, ingredients, instructions, category });
-    await newRecipe.save();
-
-    res.status(201).json(newRecipe);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
   }
 };
 
@@ -176,5 +149,82 @@ exports.removeFromKitchen = async (req, res) => {
   } catch (err) {
     console.error("Lỗi xóa recipe khỏi kitchen:", err);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+// -------------------- ADMIN CRUD --------------------
+
+// Lấy toàn bộ công thức
+exports.adminGetAllRecipes = async (req, res) => {
+  try {
+    const recipes = await Recipe.find();
+    res.json({ recipes });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Lấy chi tiết 1 công thức
+exports.adminGetRecipeById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const recipe = await Recipe.findById(id);
+    if (!recipe) {
+      return res.status(404).json({ message: "Không tìm thấy công thức" });
+    }
+    res.json(recipe);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Tạo mới công thức
+exports.adminCreateRecipe = async (req, res) => {
+  try {
+    const { name, ingredients, instructions, category, location } = req.body;
+    if (!name || !ingredients || !instructions) {
+      return res.status(400).json({ message: "Thiếu thông tin công thức" });
+    }
+
+    const newRecipe = new Recipe({
+      name,
+      ingredients,
+      instructions,
+      category,
+      location,
+    });
+
+    await newRecipe.save();
+    res.status(201).json(newRecipe);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+// Cập nhật công thức
+exports.adminUpdateRecipe = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updated = await Recipe.findByIdAndUpdate(id, req.body, { new: true });
+    if (!updated) {
+      return res.status(404).json({ message: "Không tìm thấy công thức" });
+    }
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+// Xóa công thức
+exports.adminDeleteRecipe = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await Recipe.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Không tìm thấy công thức" });
+    }
+    res.json({ message: "Xóa công thức thành công", recipe: deleted });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };

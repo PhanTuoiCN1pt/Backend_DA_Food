@@ -21,3 +21,76 @@ exports.getCategoryById = async (req, res) => {
   }
 };
 
+// Thêm subCategory mới
+exports.addSubCategory = async (req, res) => {
+  try {
+    const { id } = req.params; // id của Category
+    const { label, icon } = req.body;
+
+    const category = await Category.findById(id);
+    if (!category) {
+      return res.status(404).json({ message: "Category không tồn tại" });
+    }
+
+    category.subCategories.push({ label, icon });
+    await category.save();
+
+    res.status(201).json(category);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error });
+  }
+};
+
+// Cập nhật subCategory
+exports.updateSubCategory = async (req, res) => {
+  try {
+    const { id, subId } = req.params; // id = categoryId, subId = subCategoryId
+    const { label, icon } = req.body;
+
+    const category = await Category.findById(id);
+    if (!category) {
+      return res.status(404).json({ message: "Category không tồn tại" });
+    }
+
+    const subCategory = category.subCategories.id(subId);
+    if (!subCategory) {
+      return res.status(404).json({ message: "SubCategory không tồn tại" });
+    }
+
+    if (label) subCategory.label = label;
+    if (icon) subCategory.icon = icon;
+
+    await category.save();
+
+    res.json(subCategory);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error });
+  }
+};
+
+// Xóa subCategory
+exports.deleteSubCategory = async (req, res) => {
+  try {
+    const { id, subId } = req.params; // id = categoryId, subId = subCategoryId
+
+    const category = await Category.findById(id);
+    if (!category) {
+      return res.status(404).json({ message: "Category không tồn tại" });
+    }
+
+    const subCategory = category.subCategories.id(subId);
+    if (!subCategory) {
+      return res.status(404).json({ message: "SubCategory không tồn tại" });
+    }
+
+    subCategory.deleteOne(); // xóa subCategory trong mảng
+    await category.save();
+
+    res.json({ message: "Xóa subCategory thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error });
+  }
+};
+
+
+

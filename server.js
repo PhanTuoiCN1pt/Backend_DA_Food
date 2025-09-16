@@ -51,12 +51,14 @@ const foodRoutes = require("./routes/foodRoutes.js");
 const authRoutes = require("./routes/authRoutes.js");
 const userRoutes = require("./routes/userRoutes.js");
 const recipeRoutes = require("./routes/recipesRoutes.js"); 
+const adminRecipeRoutes = require("./routes/adminRecipeRoutes");
 const cartRoutes = require("./routes/cartRoutes.js");
 const notificationRoutes = require("./routes/notificationRoutes.js");
 const app = express();
 const bodyParser = require("body-parser");
 const fcmRoutes = require("./routes/fcmRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
+
 
 app.use(cors());
 app.use(express.json());
@@ -71,6 +73,7 @@ app.use("/api/foods", foodRoutes);
 app.use("/api/auths", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/recipes", recipeRoutes); 
+app.use("/admin/recipes", adminRecipeRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/notify", notificationRoutes);
 app.use("/api/categories", categoryRoutes);

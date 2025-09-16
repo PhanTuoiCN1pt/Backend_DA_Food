@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const foodController = require("../controllers/foodController");
 
+// Lấy tất cả foods (dành cho admin)
+router.get('/all', foodController.getAllFoods);
+
 // Thêm food mới
 router.post("/", foodController.addFood);
 

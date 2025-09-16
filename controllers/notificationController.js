@@ -141,6 +141,7 @@ exports.setNotifyTime = async (req, res) => {
 };
 
 exports.sendAutoNotifyForUser = async (user) => {
+  // Lấy tất cả thực phẩm của user
   const foods = await Food.find({ userId: user._id });
 
   const now = new Date();
@@ -148,9 +149,11 @@ exports.sendAutoNotifyForUser = async (user) => {
 
   for (const food of foods) {
     if (!food.expiryDate) continue;
+
     const expiry = new Date(food.expiryDate);
     const diffDays = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
 
+    // Chỉ notify các food sắp hết hạn (<=2 ngày)
     if (diffDays <= 2) {
       foodsForUser.push({ name: food.name, diffDays });
     }
@@ -158,20 +161,27 @@ exports.sendAutoNotifyForUser = async (user) => {
 
   if (!foodsForUser.length) return;
 
-  const expiringFoods = foodsForUser.filter(f => f.diffDays > 0).map(f => f.name);
-  const expiredFoods = foodsForUser.filter(f => f.diffDays <= 0).map(f => f.name);
+  // Phân loại sắp hết hạn và quá hạn
+  const expiringFoods = foodsForUser
+    .filter(f => f.diffDays > 0)
+    .map(f => f.name);
+
+  const expiredFoods = foodsForUser
+    .filter(f => f.diffDays <= 0)
+    .map(f => f.name);
 
   let foodsListStr = "";
   if (expiringFoods.length > 0) {
     foodsListStr += `Thực phẩm sắp hết hạn: ${expiringFoods.join(", ")}`;
   }
   if (expiredFoods.length > 0) {
-    if (foodsListStr) foodsListStr += "\n";
+    if (foodsListStr) foodsListStr += "\n"; // xuống dòng nếu có cả 2 loại
     foodsListStr += `Thực phẩm quá hạn: ${expiredFoods.join(", ")}`;
   }
 
   if (!foodsListStr) return;
 
+  // Gửi notification qua FCM
   const message = {
     token: user.fcmToken,
     notification: {
@@ -183,3 +193,4 @@ exports.sendAutoNotifyForUser = async (user) => {
   await admin.messaging().send(message);
   console.log(`✅ Sent notify to user ${user._id} at ${user.notifyTime}`);
 };
+

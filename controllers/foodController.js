@@ -1,5 +1,15 @@
 const Food = require('../models/foodModel');
 
+// Lấy tất cả foods
+exports.getAllFoods = async (req, res) => {
+  try {
+    const foods = await Food.find().sort({ registerDate: -1 });
+    res.json(foods);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // Thêm food mới
 exports.addFood = async (req, res) => {
   try {
