@@ -92,8 +92,19 @@ exports.login = async (req, res) => {
 // Đăng xuất (client chỉ cần xóa token phía frontend)
 // Nếu muốn "logout server-side" thì ta có thể lưu token blacklist
 exports.logout = async (req, res) => {
-  res.json({ message: "Đăng xuất thành công, vui lòng xóa token ở client" });
+  try {
+    const userId = req.user.id; 
+
+    // Cập nhật user, xoá fcmToken trong DB
+    await User.findByIdAndUpdate(userId, { $unset: { fcmToken: "" } });
+
+    res.json({ message: "Đăng xuất thành công!" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ message: "Có lỗi xảy ra khi logout" });
+  }
 };
+
 
 
 // Đổi password
