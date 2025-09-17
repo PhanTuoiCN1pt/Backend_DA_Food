@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Category = require("./models/categoryModel");
 
 // Kết nối DB
-mongoose.connect("mongodb://localhost:27017/food_app", {
+mongoose.connect("mongodb+srv://phanTuoi:phantuoi247@phantuoi.61ma2.mongodb.net/?retryWrites=true&w=majority&appName=phanTuoi", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
