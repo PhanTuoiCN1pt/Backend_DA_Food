@@ -26,8 +26,8 @@ const User = require("./models/userModel");
 
 // Cron job chạy mỗi phút
 cron.schedule("* * * * *", async () => {
-  const now = moment().format("HH:mm");
-  console.log("⏰ Check notify job at", now);
+  const now = moment().tz("Asia/Ho_Chi_Minh").format("HH:mm");
+  console.log("⏰ Check notify job at (VN time)", now);
 
   try {
     const users = await User.find({ notifyTime: now });
@@ -42,7 +42,10 @@ cron.schedule("* * * * *", async () => {
   } catch (err) {
     console.error("[NODE-CRON] [ERROR]", err);
   }
+}, {
+  timezone: "Asia/Ho_Chi_Minh"
 });
+
 
 
 const connectDB = require("./config/db.js"); 
