@@ -4,7 +4,7 @@ const cron = require("node-cron");
 require("dotenv").config();
 
 const notifyController = require("./controllers/notificationController");
-const moment = require("moment");
+const moment = require("moment-timezone");
 const User = require("./models/userModel");
 
 // Chạy lúc 10h sáng và 5h chiều mỗi ngày
