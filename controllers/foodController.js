@@ -1,5 +1,5 @@
 const Food = require('../models/foodModel');
-
+const Category = require("../models/categoryModel");
 // Lấy tất cả foods
 exports.getAllFoods = async (req, res) => {
   try {
@@ -96,4 +96,7 @@ exports.searchFood = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
+
 

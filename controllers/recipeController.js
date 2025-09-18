@@ -1,6 +1,6 @@
 // controllers/recipeController.js
 const Food = require("../models/foodModel");
-const Recipe = require("../models/recipeModel");
+const { Recipe, Category } = require("../models/recipeModel"); 
 const RecipeUser = require("../models/recipeUser");
 
 // -------------------- GỢI Ý MÓN ĂN --------------------
@@ -178,28 +178,34 @@ exports.adminGetRecipeById = async (req, res) => {
   }
 };
 
-// Tạo mới công thức
+// Tạo công thức mới
 exports.adminCreateRecipe = async (req, res) => {
   try {
-    const { name, ingredients, instructions, category, location } = req.body;
-    if (!name || !ingredients || !instructions) {
-      return res.status(400).json({ message: "Thiếu thông tin công thức" });
+    const { name, ingredients, instructions, category, subCategory, location, image } = req.body;
+
+    // Kiểm tra thông tin bắt buộc
+    if (!name || !ingredients || !instructions || !category || !subCategory) {
+      return res.status(400).json({ message: "Thiếu thông tin bắt buộc" });
     }
 
     const newRecipe = new Recipe({
       name,
       ingredients,
       instructions,
-      category,
-      location,
+      category,       // Lưu trực tiếp tên cha
+      subCategory,    // Lưu trực tiếp tên con
+      location: location || "",
+      image: image || "",
     });
 
     await newRecipe.save();
+
     res.status(201).json(newRecipe);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 // Cập nhật công thức
 exports.adminUpdateRecipe = async (req, res) => {

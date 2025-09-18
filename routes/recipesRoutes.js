@@ -15,7 +15,7 @@ router.get("/categories", recipeController.getAllCategories);
 
 // -------------------- CRUD --------------------
 // Lấy tất cả công thức
-router.get("/", recipeController.getRecipes);
+router.get("/all", recipeController.getRecipes);
 
 // -------------------- NHÀ BẾP --------------------
 // Thêm công thức vào nhà bếp
