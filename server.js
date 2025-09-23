@@ -46,8 +46,6 @@ cron.schedule("* * * * *", async () => {
   timezone: "Asia/Ho_Chi_Minh"
 });
 
-
-
 const connectDB = require("./config/db.js"); 
 
 const foodRoutes = require("./routes/foodRoutes.js");

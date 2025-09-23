@@ -1,6 +1,7 @@
 const { google } = require("google-auth-library");
 const axios = require("axios");
 const key = require("../service-account.json");
+const admin = require("../config/firebase");
 
 // Hàm lấy access token từ service account
 async function getAccessToken() {
@@ -52,7 +53,6 @@ exports.sendNotification = async (req, res) => {
   }
 };
 
-const admin = require("../config/firebase");
 
 exports.sendNotification = async (req, res) => {
   try {

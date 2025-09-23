@@ -1,17 +1,21 @@
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = process.env.JWT_SECRET; 
 
-const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; 
+const JWT_SECRET = process.env.JWT_SECRET;
 
-  if (!token) return res.status(401).json({ message: "Không có token" });
+module.exports = (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-  jwt.verify(token, JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(403).json({ message: "Token không hợp lệ" });
-    req.user = decoded;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Không có token, từ chối truy cập" });
+  }
+
+  const token = authHeader.split(" ")[1]; // lấy phần token sau Bearer
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded; // 👈 gắn vào req để dùng ở controller
     next();
-  });
+  } catch (error) {
+    return res.status(401).json({ message: "Token không hợp lệ" });
+  }
 };
-
-module.exports = authMiddleware;

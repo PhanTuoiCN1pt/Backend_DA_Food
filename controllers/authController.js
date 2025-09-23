@@ -91,19 +91,37 @@ exports.login = async (req, res) => {
 
 // Đăng xuất (client chỉ cần xóa token phía frontend)
 // Nếu muốn "logout server-side" thì ta có thể lưu token blacklist
+// Đăng xuất
 exports.logout = async (req, res) => {
   try {
-    const userId = req.user.id; 
+    const userId = req.user.userId; // ✅ Lấy từ middleware auth (decode JWT)
 
-    // Cập nhật user, xoá fcmToken trong DB
-    await User.findByIdAndUpdate(userId, { $unset: { fcmToken: "" } });
+    // Tìm user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User không tồn tại" });
+    }
 
-    res.json({ message: "Đăng xuất thành công!" });
+    // Xóa fcmToken trong DB
+    user.fcmToken = null;
+    await user.save();
+
+    res.json({
+      status: "success",
+      message: "Đăng xuất thành công",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        lastLogin: user.lastLogin,
+      },
+    });
   } catch (error) {
     console.error("Logout error:", error);
     res.status(500).json({ message: "Có lỗi xảy ra khi logout" });
   }
 };
+
 
 
 
