@@ -154,6 +154,17 @@ exports.removeFromKitchen = async (req, res) => {
 
 // -------------------- ADMIN CRUD --------------------
 
+// Laay so luong tat ca recipe
+exports.adminGetCountAllRecipes = async (req, res) => {
+  try {
+    const count = await Recipe.countDocuments(); // đếm số lượng document trong collection
+    res.json({ totalRecipes: count });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
 // Lấy toàn bộ công thức
 exports.adminGetAllRecipes = async (req, res) => {
   try {
@@ -163,6 +174,15 @@ exports.adminGetAllRecipes = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// exports.adminGetAllRecipes = async (req, res) => {
+//   try {
+//     const recipes = await Recipe.find();
+//     res.json({ recipes });
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// };
 
 // Lấy chi tiết 1 công thức
 exports.adminGetRecipeById = async (req, res) => {

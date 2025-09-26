@@ -3,6 +3,7 @@ const router = express.Router();
 const recipeController = require("../controllers/recipeController");
 
 // -------------------- ADMIN CRUD --------------------
+router.get("/count", recipeController.adminGetCountAllRecipes);
 router.get("/all", recipeController.adminGetAllRecipes);
 router.get("/:id", recipeController.adminGetRecipeById);
 router.post("/", recipeController.adminCreateRecipe);

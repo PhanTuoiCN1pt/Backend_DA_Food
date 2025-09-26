@@ -1,14 +1,21 @@
 const Food = require('../models/foodModel');
 const Category = require("../models/categoryModel");
 // Lấy tất cả foods
-exports.getAllFoods = async (req, res) => {
+exports.getFoodCount = async (req, res) => {
   try {
-    const foods = await Food.find().sort({ registerDate: -1 });
-    res.json(foods);
+    const categories = await Category.find();
+    const totalSubCategories = categories.reduce(
+      (sum, cat) => sum + (cat.subCategories?.length || 0),
+      0
+    );
+    res.json({ totalSubCategories, totalCategories: categories.length });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
+
+
 
 // Thêm food mới
 exports.addFood = async (req, res) => {

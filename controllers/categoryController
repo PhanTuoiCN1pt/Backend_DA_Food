@@ -21,6 +21,23 @@ exports.getCategoryById = async (req, res) => {
   }
 };
 
+// Lấy danh sách subCategories của 1 category
+exports.getSubCategories = async (req, res) => {
+  try {
+    const { id } = req.params; // categoryId
+
+    const category = await Category.findById(id).select("subCategories");
+    if (!category) {
+      return res.status(404).json({ message: "Category không tồn tại" });
+    }
+
+    res.json(category.subCategories);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error });
+  }
+};
+
+
 // Thêm subCategory mới
 exports.addSubCategory = async (req, res) => {
   try {

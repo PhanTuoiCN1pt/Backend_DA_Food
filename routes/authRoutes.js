@@ -9,7 +9,7 @@ router.post("/logout", authMiddleware, authController.logout);
 router.post("/change-password", authMiddleware, authController.changePassword);
 
 router.post("/forgot-password", authController.forgotPassword);
-router.post("/reset-password/:token", authController.resetPassword);
+router.post("/reset-password/:otpCode", authController.resetPassword);
 
 
 // Protected route (chỉ đăng nhập mới vào được)

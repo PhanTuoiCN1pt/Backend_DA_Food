@@ -3,7 +3,7 @@ const router = express.Router();
 const foodController = require("../controllers/foodController");
 
 // Lấy tất cả foods (dành cho admin)
-router.get('/all', foodController.getAllFoods);
+router.get('/all', foodController.getFoodCount);
 
 // Thêm food mới
 router.post("/", foodController.addFood);

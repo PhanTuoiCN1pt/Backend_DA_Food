@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
-const JWT_SECRET = process.env.JWT_SECRET; 
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Đăng ký
 exports.register = async (req, res) => {
@@ -66,22 +66,22 @@ exports.login = async (req, res) => {
     }
 
     // Cập nhật lastLogin
-     user.lastLogin = new Date();
+    user.lastLogin = new Date();
 
-     await user.save();
+    await user.save();
 
     // Tạo token JWT
     const token = jwt.sign({ userId: user._id }, JWT_SECRET);
 
-    res.json({ 
-      token, 
-      user: { 
-        id: user._id, 
-        name: user.name, 
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
         email: user.email,
         fcmToken: user.fcmToken,
         lastLogin: user.lastLogin
-      } 
+      }
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -156,51 +156,70 @@ exports.forgotPassword = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: "Email không tồn tại" });
 
-    // Tạo token
-    const token = crypto.randomBytes(32).toString("hex");
-    user.resetPasswordToken = token;
+    // Tạo OTP 8 ký tự ngẫu nhiên
+    const otpCode = generateOtpCode(8);
+
+    // Hash OTP trước khi lưu
+    const hashedOtp = await bcrypt.hash(otpCode, 10);
+
+    user.resetPasswordOtp = hashedOtp; // ✅ lưu hash vào DB
     user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 phút
     await user.save();
 
-    // Gửi email
+    // Gửi email (gửi OTP gốc cho người dùng)
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
+        pass: process.env.EMAIL_PASS,
+      },
     });
 
-    const resetUrl = `http://localhost:5000/api/users/reset-password/${token}`;
     await transporter.sendMail({
       to: user.email,
       from: process.env.EMAIL_USER,
-      subject: "Đặt lại mật khẩu",
+      subject: "Mã OTP đặt lại mật khẩu",
       html: `<p>Bạn đã yêu cầu đặt lại mật khẩu</p>
-             <p>Bấm vào link để đổi mật khẩu: <a href="${resetUrl}">${resetUrl}</a></p>`
+             <p>Mã OTP của bạn là: <b>${otpCode}</b></p>
+             <p>Mã này sẽ hết hạn sau 15 phút.</p>`,
     });
 
-    res.json({ message: "Đã gửi link reset mật khẩu qua email" });
+    res.json({ message: "Đã gửi mã OTP qua email" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+// Hàm tạo OTP ngẫu nhiên
+function generateOtpCode(length = 8) {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let code = "";
+  for (let i = 0; i < length; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
 // 2. Reset mật khẩu
 exports.resetPassword = async (req, res) => {
   try {
-    const { token } = req.params;
+    const { otpCode } = req.params; // OTP người dùng nhập
     const { newPassword } = req.body;
 
     const user = await User.findOne({
-      resetPasswordToken: token,
       resetPasswordExpires: { $gt: Date.now() }
     });
 
-    if (!user) return res.status(400).json({ error: "Token không hợp lệ hoặc đã hết hạn" });
+    if (!user) return res.status(400).json({ error: "OTP không hợp lệ hoặc đã hết hạn" });
 
+    // So sánh OTP nhập với hash trong DB
+    const isMatch = await bcrypt.compare(otpCode, user.resetPasswordOtp);
+    if (!isMatch) return res.status(400).json({ error: "Mã OTP không chính xác" });
+
+    // Nếu đúng -> đổi mật khẩu
     user.password = await bcrypt.hash(newPassword, 10);
-    user.resetPasswordToken = undefined;
+    user.resetPasswordOtp = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
 
