@@ -6,7 +6,7 @@ const foodSchema = new mongoose.Schema({
   category: { type: String, required: true },
   name: { type: String, required: true },
   quantity: { type: Number, default: 1 },
-  location: { type: String, default: "Tủ lạnh" },
+  location: { type: String, default: "Ngăn lạnh" },
   registerDate: { type: Date, default: Date.now },
   expiryDate: { type: Date },
   note: { type: String, default: "" },

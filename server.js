@@ -7,27 +7,10 @@ const notifyController = require("./controllers/notificationController");
 const moment = require("moment-timezone");
 const User = require("./models/userModel");
 
-// Chạy lúc 10h sáng và 5h chiều mỗi ngày
-
-// cron.schedule("22 17,18 * * *", async () => {
-//   console.log("⏰ Cron job: auto notify expiring foods");
-//   try {
-//     await notifyController.autoNotifyExpiringFoods(
-//       { body: {} }, // fake req
-//       { 
-//         json: (data) => console.log("✅ Auto notify result:", data),
-//         status: (code) => ({ json: (data) => console.log(`❌ Error ${code}:`, data) })
-//       }
-//     );
-//   } catch (err) {
-//     console.error("❌ Cron job error:", err.message);
-//   }
-// });
-
 // Cron job chạy mỗi phút
 cron.schedule("* * * * *", async () => {
   const now = moment().tz("Asia/Ho_Chi_Minh").format("HH:mm");
-  console.log("⏰ Check notify job at (VN time)", now);
+  console.log("Kiểm tra thực phẩm hết hạn -", now);
 
   try {
     const users = await User.find({ notifyTime: now });
@@ -36,7 +19,7 @@ cron.schedule("* * * * *", async () => {
       if (user.fcmToken) {
         await notifyController.sendAutoNotifyForUser(user);
       } else {
-        console.log(`⚠️ User ${user._id} không có fcmToken`);
+        console.log(`User ${user._id} không có fcmToken`);
       }
     }
   } catch (err) {

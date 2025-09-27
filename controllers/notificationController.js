@@ -23,11 +23,11 @@ exports.sendNotification = async (req, res) => {
         };
 
         const response = await admin.messaging().send(message);
-        console.log("✅ Sent direct notification:", response);
+        console.log("Sent direct notification:", response);
 
         res.json({ success: true, response });
     } catch (err) {
-        console.error("❌ sendNotification ERROR:", err.message);
+        console.error("sendNotification ERROR:", err.message);
         res.status(500).json({ error: err.message });
     }
 };
@@ -35,10 +35,10 @@ exports.sendNotification = async (req, res) => {
 
 exports.autoNotifyExpiringFoods = async (req, res) => {
   try {
-    console.log("🔔 autoNotifyExpiringFoods START");
+    console.log("autoNotifyExpiringFoods START");
 
     const foods = await Food.find({});
-    console.log(`📦 Found ${foods.length} foods`);
+    console.log(`Found ${foods.length} foods`);
 
     const now = new Date();
     const userFoodsMap = {};
@@ -62,13 +62,13 @@ exports.autoNotifyExpiringFoods = async (req, res) => {
     for (const userId of Object.keys(userFoodsMap)) {
       const user = await User.findById(userId);
       if (!user?.fcmToken) {
-        console.log(`⚠️ User ${userId} has no fcmToken`);
+        console.log(`User ${userId} has no fcmToken`);
         continue;
       }
 
       const existing = tokenUserMap[user.fcmToken];
       if (!existing || (user.lastLogin && user.lastLogin > existing.lastLogin)) {
-        tokenUserMap[user.fcmToken] = user; // 🔥 chọn user có lastLogin mới hơn
+        tokenUserMap[user.fcmToken] = user; // chọn user có lastLogin mới hơn
       }
     }
 
@@ -99,19 +99,19 @@ exports.autoNotifyExpiringFoods = async (req, res) => {
       const message = {
         token: fcmToken,
         notification: {
-          title: "⚠️ Cảnh báo thực phẩm",
+          title: "Cảnh báo thực phẩm",
           body: foodsListStr,
         },
       };
 
       await admin.messaging().send(message);
-      console.log(`✅ Sent notify to user ${user._id} (last login)`);
+      console.log(`Sent notify to user ${user._id} (last login)`);
       totalNotifies++;
     }
 
     res.json({ success: true, message: `Đã gửi ${totalNotifies} thông báo (lastLogin filter)` });
   } catch (err) {
-    console.error("❌ autoNotifyExpiringFoods ERROR:", err.message);
+    console.error("autoNotifyExpiringFoods ERROR:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
@@ -135,7 +135,7 @@ exports.setNotifyTime = async (req, res) => {
 
     res.json({ success: true, notifyTime: user.notifyTime });
   } catch (err) {
-    console.error("❌ setNotifyTime ERROR:", err.message);
+    console.error("setNotifyTime ERROR:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
@@ -185,12 +185,12 @@ exports.sendAutoNotifyForUser = async (user) => {
   const message = {
     token: user.fcmToken,
     notification: {
-      title: "⚠️ Cảnh báo thực phẩm",
+      title: "Cảnh báo thực phẩm",
       body: foodsListStr,
     },
   };
 
   await admin.messaging().send(message);
-  console.log(`✅ Sent notify to user ${user._id} at ${user.notifyTime}`);
+  console.log(`Sent notify to user ${user._id} at ${user.notifyTime}`);
 };
 

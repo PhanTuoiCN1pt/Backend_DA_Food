@@ -9,7 +9,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // Đăng ký
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, fcmToken } = req.body; // ✅ nhận thêm fcmToken từ client
+    const { name, email, password, fcmToken } = req.body; // nhận thêm fcmToken từ client
 
     // Check trùng email
     const existingUser = await User.findOne({ email });
@@ -25,7 +25,7 @@ exports.register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      fcmToken: fcmToken || null, // ✅ lưu token device
+      fcmToken: fcmToken || null, // lưu token device
     });
 
     await newUser.save();
@@ -37,7 +37,7 @@ exports.register = async (req, res) => {
         id: newUser._id,
         name: newUser.name,
         email: newUser.email,
-        fcmToken: newUser.fcmToken, // ✅ trả về luôn cho chắc
+        fcmToken: newUser.fcmToken, // trả về luôn cho chắc
       },
     });
   } catch (err) {
@@ -50,7 +50,7 @@ exports.register = async (req, res) => {
 // Đăng nhập
 exports.login = async (req, res) => {
   try {
-    const { email, password, fcmToken } = req.body; // ✅ nhận thêm fcmToken từ client
+    const { email, password, fcmToken } = req.body; // nhận thêm fcmToken từ client
 
     const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ message: "Sai email hoặc mật khẩu" });
@@ -94,7 +94,7 @@ exports.login = async (req, res) => {
 // Đăng xuất
 exports.logout = async (req, res) => {
   try {
-    const userId = req.user.userId; // ✅ Lấy từ middleware auth (decode JWT)
+    const userId = req.user.userId; // Lấy từ middleware auth (decode JWT)
 
     // Tìm user
     const user = await User.findById(userId);
@@ -162,7 +162,7 @@ exports.forgotPassword = async (req, res) => {
     // Hash OTP trước khi lưu
     const hashedOtp = await bcrypt.hash(otpCode, 10);
 
-    user.resetPasswordOtp = hashedOtp; // ✅ lưu hash vào DB
+    user.resetPasswordOtp = hashedOtp; // lưu hash vào DB
     user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 phút
     await user.save();
 

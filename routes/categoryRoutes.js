@@ -5,7 +5,7 @@ const categoryController = require("../controllers/categoryController");
 // Lấy tất cả category
 router.get("/", categoryController.getCategories);
 
-// 🔍 Route đặc biệt phải đặt trước
+// Tìm món ăn theo subCategory
 router.get("/searchBySubCategory", categoryController.searchFoodBySubCategory);
 
 // Lấy 1 category theo id (đặt sau cùng)

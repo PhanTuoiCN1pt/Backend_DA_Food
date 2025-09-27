@@ -14,9 +14,6 @@ exports.getFoodCount = async (req, res) => {
   }
 };
 
-
-
-
 // Thêm food mới
 exports.addFood = async (req, res) => {
   try {
