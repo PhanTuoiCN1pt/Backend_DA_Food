@@ -10,6 +10,7 @@ const foodSchema = new mongoose.Schema({
   registerDate: { type: Date, default: Date.now },
   expiryDate: { type: Date },
   note: { type: String, default: "" },
+  icon: { type: String, default: "" }, 
 });
 
 module.exports = mongoose.model("Food", foodSchema);
