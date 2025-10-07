@@ -66,5 +66,5 @@ app.use("/api/categories", categoryRoutes);
 // FCM routes
 app.use("/api/fcm", fcmRoutes);
 
-const PORT = 5000;
+const PORT = 3000;
 app.listen(PORT, () => console.log(`Server chạy tại http://localhost:${PORT}`));

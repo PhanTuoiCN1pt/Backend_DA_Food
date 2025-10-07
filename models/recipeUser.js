@@ -12,6 +12,8 @@ const recipeUserSchema = new mongoose.Schema({
   category: { type: String },
   location: { type: String, default: "Nhà bếp" }, 
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  image: { type: String, required: false },
+  ownerId: { type: String, default: "admin" },
   createdAt: { type: Date, default: Date.now },
 });
 

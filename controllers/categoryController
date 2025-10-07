@@ -1,6 +1,6 @@
 const Category = require("../models/categoryModel");
 
-// Lấy tất cả category
+// 🔹 Lấy tất cả category
 exports.getCategories = async (req, res) => {
   try {
     const categories = await Category.find({});
@@ -10,59 +10,78 @@ exports.getCategories = async (req, res) => {
   }
 };
 
-// Lấy 1 category kèm subCategories
+// 🔹 Lấy 1 category kèm subCategories (lọc theo owner)
 exports.getCategoryById = async (req, res) => {
   try {
+    const { userId } = req.query;
     const category = await Category.findById(req.params.id);
     if (!category) return res.status(404).json({ message: "Không tìm thấy category" });
-    res.json(category);
+
+    // Lọc sub theo quyền
+    const visibleSubs = category.subCategories.filter(
+      (sub) => sub.ownerId === "admin" || sub.ownerId === userId
+    );
+
+    res.json({
+      ...category.toObject(),
+      subCategories: visibleSubs,
+    });
   } catch (error) {
     res.status(500).json({ message: "Lỗi server", error });
   }
 };
 
-// Lấy danh sách subCategories của 1 category
+// 🔹 Lấy danh sách subCategories theo userId (admin + user)
 exports.getSubCategories = async (req, res) => {
   try {
     const { id } = req.params; // categoryId
+    const { ownerId } = req.query;
 
     const category = await Category.findById(id).select("subCategories");
     if (!category) {
       return res.status(404).json({ message: "Category không tồn tại" });
     }
 
-    res.json(category.subCategories);
+    const filtered = category.subCategories.filter(
+      (sub) => sub.ownerId === "admin" || sub.ownerId === ownerId
+    );
+
+    res.json(filtered);
   } catch (error) {
     res.status(500).json({ message: "Lỗi server", error });
   }
 };
 
-
-// Thêm subCategory mới
+// 🔹 Thêm subCategory mới (gắn ownerId)
 exports.addSubCategory = async (req, res) => {
   try {
     const { id } = req.params; // id của Category
-    const { label, icon } = req.body;
+    const { label, icon, ownerId } = req.body; // ✅ đổi userId thành ownerId
 
     const category = await Category.findById(id);
     if (!category) {
       return res.status(404).json({ message: "Category không tồn tại" });
     }
 
-    category.subCategories.push({ label, icon });
-    await category.save();
+    category.subCategories.push({
+      label,
+      icon,
+      ownerId: ownerId || "admin", // ✅ đúng trường
+    });
 
-    res.status(201).json(category);
+    await category.save();
+    res.status(201).json({ message: "Thêm subCategory thành công", category });
   } catch (error) {
     res.status(500).json({ message: "Lỗi server", error });
   }
 };
 
-// Cập nhật subCategory
+
+// 🔹 Cập nhật subCategory (chỉ owner mới được cập nhật)
 exports.updateSubCategory = async (req, res) => {
   try {
-    const { id, subId } = req.params; // id = categoryId, subId = subCategoryId
-    const { label, icon } = req.body;
+    const { id, subId } = req.params;
+    const { label, icon, userId } = req.body;
 
     const category = await Category.findById(id);
     if (!category) {
@@ -72,23 +91,28 @@ exports.updateSubCategory = async (req, res) => {
     const subCategory = category.subCategories.id(subId);
     if (!subCategory) {
       return res.status(404).json({ message: "SubCategory không tồn tại" });
+    }
+
+    // 🔒 Kiểm tra quyền sở hữu
+    if (subCategory.ownerId !== userId) {
+      return res.status(403).json({ message: "Không có quyền chỉnh sửa thực phẩm này" });
     }
 
     if (label) subCategory.label = label;
     if (icon) subCategory.icon = icon;
 
     await category.save();
-
-    res.json(subCategory);
+    res.json({ message: "Cập nhật thành công", subCategory });
   } catch (error) {
     res.status(500).json({ message: "Lỗi server", error });
   }
 };
 
-// Xóa subCategory
+// 🔹 Xóa subCategory (chỉ owner mới được xóa)
 exports.deleteSubCategory = async (req, res) => {
   try {
-    const { id, subId } = req.params; // id = categoryId, subId = subCategoryId
+    const { id, subId } = req.params;
+    const { userId } = req.query;
 
     const category = await Category.findById(id);
     if (!category) {
@@ -100,7 +124,12 @@ exports.deleteSubCategory = async (req, res) => {
       return res.status(404).json({ message: "SubCategory không tồn tại" });
     }
 
-    subCategory.deleteOne(); // xóa subCategory trong mảng
+    // 🔒 Chỉ owner mới được phép xóa
+    if (subCategory.ownerId !== userId) {
+      return res.status(403).json({ message: "Không có quyền xóa thực phẩm này" });
+    }
+
+    subCategory.deleteOne();
     await category.save();
 
     res.json({ message: "Xóa subCategory thành công" });
@@ -109,35 +138,33 @@ exports.deleteSubCategory = async (req, res) => {
   }
 };
 
-
-// Tìm food theo subCategory.label
+// 🔹 Tìm food theo từ khóa, lọc theo quyền (admin + user)
 exports.searchFoodBySubCategory = async (req, res) => {
   try {
-    const { keyword } = req.query;
+    const { keyword, userId } = req.query;
 
     if (!keyword) {
-      return res
-        .status(400)
-        .json({ message: "keyword query parameter is required" });
+      return res.status(400).json({ message: "Thiếu keyword để tìm kiếm" });
     }
 
-    // Tìm tất cả category có subCategories match keyword
     const categories = await Category.find({
       "subCategories.label": { $regex: keyword, $options: "i" },
     });
 
     if (!categories.length) {
-      return res.status(404).json({ message: "No food found" });
+      return res.status(404).json({ message: "Không tìm thấy thực phẩm" });
     }
 
-    // Gom tất cả subCategory match vào 1 mảng
     const results = [];
     categories.forEach((cat) => {
       cat.subCategories.forEach((sub) => {
-        if (sub.label.toLowerCase().includes(keyword.toLowerCase())) {
+        if (
+          sub.label.toLowerCase().includes(keyword.toLowerCase()) &&
+          (sub.ownerId === "admin" || sub.ownerId === userId)
+        ) {
           results.push({
-            category: cat.label, // danh mục cha
-            ...sub.toObject(),  // food (icon, label)
+            category: cat.label,
+            ...sub.toObject(),
           });
         }
       });
@@ -148,6 +175,3 @@ exports.searchFoodBySubCategory = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
-
-

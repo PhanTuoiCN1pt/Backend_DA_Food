@@ -25,6 +25,8 @@ const recipeSchema = new mongoose.Schema({
     required: false,
   },
 
+   ownerId: { type: String, default: "admin" },
+
   createdAt: {
     type: Date,
     default: Date.now,
