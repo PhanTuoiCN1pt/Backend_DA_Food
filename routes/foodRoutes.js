@@ -9,7 +9,7 @@ router.get('/all', foodController.getFoodCount);
 router.post("/", foodController.addFood);
 
 // Lấy tất cả foods của user
-router.get("/", foodController.getFoodsByUser);
+router.get("/", foodController.getFoods);
 
 // Cập nhật food theo id
 router.put("/:id", foodController.updateFood);

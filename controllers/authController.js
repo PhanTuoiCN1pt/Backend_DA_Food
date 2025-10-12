@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const householdModel = require("../models/householdModel");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -77,6 +78,7 @@ exports.login = async (req, res) => {
       token,
       user: {
         id: user._id,
+        householdId: user.householdId || null,
         name: user.name,
         email: user.email,
         fcmToken: user.fcmToken,

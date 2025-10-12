@@ -42,6 +42,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const fcmRoutes = require("./routes/fcmRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
+const householdRoutes = require("./routes/householeRoutes");
 
 
 app.use(cors());
@@ -61,6 +62,7 @@ app.use("/admin/recipes", adminRecipeRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/notify", notificationRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/households", householdRoutes);
 
 
 // FCM routes
