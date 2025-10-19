@@ -10,7 +10,7 @@ const householdSchema = new mongoose.Schema({
     // Danh sách thành viên
     members: [
         {
-            userId: { type: String, required: true },
+            userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
             role: {
                 type: String,
                 enum: ["owner", "admin", "member"],
@@ -27,20 +27,11 @@ const householdSchema = new mongoose.Schema({
         required: true,
     },
 
-    // Quản lý thực phẩm hoặc tủ lạnh chung (nếu cần)
-    sharedInventory: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Food",
-        },
-    ],
-
     // Tuỳ chọn quyền truy cập (mở rộng trong tương lai)
     settings: {
         allowGuests: { type: Boolean, default: false },
         autoShareInventory: { type: Boolean, default: true },
     },
-
 
     // Tùy chọn hiển thị
     description: { type: String, default: "" },

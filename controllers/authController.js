@@ -43,7 +43,7 @@ exports.register = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Lỗi server" });
+    res.status(500).json({ message: "Lỗi server" });
   }
 };
 
@@ -147,7 +147,7 @@ exports.changePassword = async (req, res) => {
     res.json({ message: "Đổi mật khẩu thành công" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Lỗi server" });
+    res.status(500).json({ message: "Lỗi server" });
   }
 };
 
@@ -188,7 +188,7 @@ exports.forgotPassword = async (req, res) => {
 
     res.json({ message: "Đã gửi mã OTP qua email" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "Lỗi" });
   }
 };
 

@@ -20,4 +20,7 @@ router.get("/search", foodController.searchFood);
 // Xóa food theo id
 router.delete("/:id", foodController.deleteFood);
 
+// Tính toán calo từ thực phẩm
+router.post("/calories", foodController.getCalories);
+
 module.exports = router;

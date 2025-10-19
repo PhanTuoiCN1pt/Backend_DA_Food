@@ -1,6 +1,7 @@
 const Food = require("../models/foodModel");
 const { Recipe } = require("../models/recipeModel");
 const RecipeUser = require("../models/recipeUser");
+const User = require("../models/userModel");
 
 // -------------------- GỢI Ý MÓN ĂN --------------------
 exports.getTodayMealSuggestions = async (req, res) => {
@@ -122,6 +123,7 @@ exports.addToKitchen = async (req, res) => {
     const recipe = await Recipe.findById(id);
     if (!recipe) return res.status(404).json({ message: "Không tìm thấy công thức" });
 
+    const user = await User.findById(userId);
     const existing = await RecipeUser.findOne({
       name: recipe.name,
       userId,
@@ -137,7 +139,7 @@ exports.addToKitchen = async (req, res) => {
       category: recipe.category,
       location: "Nhà bếp",
       image: recipe.image || "",
-      userId,
+      userId: user._id,
     });
 
     await newRecipe.save();
